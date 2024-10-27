@@ -8,7 +8,7 @@
     <!-- ROS Parameters -->
     <arg name="world_frame_id"  default="world" />
     <arg name="cam_frame_id"    default="camera" />
-    <arg name="enable_pangolin" default="true" />
+    <arg name="enable_pangolin" default="false" />
 
     <!-- Topic Remappings -->
     <arg name="left_image_topic"  default="/cam0/image_raw" />
