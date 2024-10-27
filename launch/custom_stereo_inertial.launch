@@ -1,0 +1,49 @@
+<launch>
+
+    <arg name="config"          default="EuRoC" />
+    <arg name="config_path"     default="$(find orb_slam3_ros_wrapper)/config/$(arg config).yaml" />
+    <arg name="voc_file"        default="$(find orb_slam3_ros_wrapper)/config/ORBvoc.txt" />
+    <arg name="traj_save_file"  default="" />
+
+    <!-- ROS Parameters -->
+    <arg name="world_frame_id"  default="world" />
+    <arg name="cam_frame_id"    default="camera" />
+    <arg name="enable_pangolin" default="true" />
+
+    <!-- Topic Remappings -->
+    <arg name="left_image_topic"  default="/cam0/image_raw" />
+    <arg name="right_image_topic" default="/cam1/image_raw" />
+    <arg name="imu_topic"         default="/imu0" />
+
+    <!-- ORB-SLAM3 Node -->
+    <node name="orb_slam3_stereo_inertial" pkg="orb_slam3_ros_wrapper" type="orb_slam3_ros_wrapper_stereo_inertial" output="screen">
+
+        <!-- Remap topics -->
+        <remap from="/camera/left/image_raw"    to="$(arg left_image_topic)" />
+        <remap from="/camera/right/image_raw"   to="$(arg right_image_topic)" />
+        <remap from="/imu"                      to="$(arg imu_topic)" />
+
+        <!-- Parameters for ORB-SLAM3 -->
+        <param name="voc_file"      type="string" value="$(arg voc_file)" />
+        <param name="settings_file" type="string" value="$(arg config_path)" />
+        <param name="traj_save_file" type="string" value="$(arg traj_save_file)" />
+
+        <!-- Parameters for ROS -->
+        <param name="world_frame_id"    type="string" value="$(arg world_frame_id)" />
+        <param name="cam_frame_id"      type="string" value="$(arg cam_frame_id)" />
+        <param name="enable_pangolin"   type="bool"   value="$(arg enable_pangolin)" />
+
+    </node>
+
+    <!-- Optional: Visualization - RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb_slam3_ros_wrapper)/config/orb_slam3_with_imu.rviz" output="screen" />
+
+    <!-- Optional: Trajectory Server -->
+    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros" >
+        <param name="target_frame_name" value="$(arg world_frame_id)" />
+        <param name="source_frame_name" value="$(arg cam_frame_id)" />
+        <param name="trajectory_update_rate" value="20.0" />
+        <param name="trajectory_publish_rate" value="20.0" />
+    </node>
+
+</launch>
